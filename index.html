@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>087 IMUS 1 Customer Data</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #111827;
+            --primary-light: #263244;
+            --accent: #111111;
+            --accent-hover: #303030;
+            --danger: #b4232c;
+            --danger-bg: #fde5e6;
+            --bg-main: #f0f3f9;
+            --card-bg: #ffffff;
+            --border: #d5dce5;
+            --text-main: #263244;
+            --text-muted: #687587;
+            --soft: #f2f5fa;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-main);
+            margin: 0;
+            padding: 28px 18px 48px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .dashboard-wrapper {
+            width: 100%;
+            max-width: 1050px;
+            margin: 0 auto;
+        }
+
+        .brand-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 10px;
+            margin: 12px 0 28px;
+            padding: 10px 8px;
+        }
+
+        .brand-title-group h1 {
+            margin: 0;
+            color: var(--primary);
+            font-size: clamp(23px, 4vw, 30px);
+            line-height: 1.25;
+            font-weight: 800;
+            letter-spacing: -0.8px;
+        }
+
+        .brand-title-group p {
+            margin: 8px 0 0;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .stats-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #eef2f7;
+            color: var(--primary);
+            border: 1px solid var(--border);
+            padding: 9px 17px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .container {
+            overflow: hidden;
+            background: var(--card-bg);
+            border: 1px solid #e0e6ee;
+            border-radius: 17px;
+            box-shadow: 0 3px 10px rgba(15, 23, 42, .06);
+        }
+
+        .card-header {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 18px;
+            padding: 24px;
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-header h2 {
+            margin: 0;
+            color: var(--primary);
+            font-size: 19px;
+            font-weight: 800;
+            letter-spacing: -.3px;
+        }
+
+        .controls-group {
+            display: grid;
+            grid-template-columns: minmax(170px, 1fr) auto auto;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .date-filter {
+            width: 100%;
+            min-height: 49px;
+            padding: 0 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            background: #fff;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .date-filter:focus {
+            border-color: #8794a5;
+            box-shadow: 0 0 0 3px rgba(100, 116, 139, .12);
+        }
+
+        .btn-refresh, .btn-clear {
+            min-height: 49px;
+            padding: 0 17px;
+            border: 0;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background .2s ease, transform .2s ease;
+            white-space: nowrap;
+        }
+
+        .btn-refresh {
+            color: #fff;
+            background: var(--accent);
+            box-shadow: 0 2px 5px rgba(0,0,0,.12);
+        }
+
+        .btn-refresh:hover { background: var(--accent-hover); transform: translateY(-1px); }
+
+        .btn-clear {
+            color: var(--text-main);
+            background: #edf1f6;
+            border: 1px solid #e0e5ec;
+        }
+
+        .btn-clear:hover { background: #e1e7ef; }
+
+        .table-responsive {
+            width: 100%;
+            max-height: 600px;
+            overflow: auto;
+            background: #fff;
+        }
+
+        table {
+            width: 100%;
+            min-width: 760px;
+            border-collapse: separate;
+            border-spacing: 0;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            padding: 16px 20px;
+            color: #566273;
+            background: #f1f4f8;
+            border-bottom: 1px solid var(--border);
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .7px;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 17px 20px;
+            color: var(--text-main);
+            background: #fff;
+            border-bottom: 1px solid #edf0f4;
+            vertical-align: middle;
+        }
+
+        tr:last-child td { border-bottom: 0; }
+        tbody tr:hover td { background: #fafbfd; }
+
+        .name-tag {
+            color: var(--primary);
+            font-weight: 750;
+        }
+
+        .feedback-text {
+            max-width: 350px;
+            min-width: 180px;
+            line-height: 1.55;
+            overflow-wrap: anywhere;
+        }
+
+        .btn-delete {
+            padding: 9px 14px;
+            color: var(--danger);
+            background: var(--danger-bg);
+            border: 0;
+            border-radius: 9px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 750;
+            transition: .2s ease;
+        }
+
+        .btn-delete:hover {
+            color: #fff;
+            background: var(--danger);
+        }
+
+        .btn-delete:disabled {
+            color: var(--text-muted);
+            background: #edf0f4;
+            cursor: not-allowed;
+        }
+
+        #loadingStatus {
+            padding: 34px 20px;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .toast {
+            position: fixed;
+            z-index: 10000;
+            left: 50%;
+            bottom: 24px;
+            min-width: 260px;
+            max-width: calc(100vw - 32px);
+            padding: 14px 20px;
+            color: #fff;
+            background: var(--primary);
+            border-radius: 11px;
+            box-shadow: 0 10px 25px rgba(0,0,0,.16);
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            visibility: hidden;
+            opacity: 0;
+            transform: translate(-50%, 15px);
+            transition: .25s ease;
+        }
+
+        .toast.success { background: #176b4b; }
+        .toast.error { background: #a51d2d; }
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+
+        @media (min-width: 760px) {
+            .card-header {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+            .controls-group { grid-template-columns: 170px auto auto; }
+        }
+
+        @media (max-width: 600px) {
+            body { padding: 20px 12px 35px; }
+            .brand-header { margin: 8px 0 20px; }
+            .brand-title-group h1 { font-size: 23px; }
+            .brand-title-group p { font-size: 13px; }
+            .container { border-radius: 14px; }
+            .card-header { padding: 20px 16px; gap: 15px; }
+            .card-header h2 { font-size: 18px; }
+            .controls-group {
+                grid-template-columns: 1fr 1fr;
+                gap: 9px;
+            }
+            .date-filter { grid-column: 1 / -1; }
+            .btn-refresh, .btn-clear {
+                width: 100%;
+                min-height: 48px;
+                padding: 0 10px;
+                font-size: 12px;
+            }
+            .table-responsive { max-height: 65vh; }
+            table { min-width: 720px; }
+            th { padding: 14px 15px; }
+            td { padding: 15px; }
+            .stats-badge { font-size: 12px; }
+        }
+
+        button:focus-visible, input:focus-visible {
+            outline: 3px solid rgba(100, 116, 139, .28);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-wrapper">
+    <!-- Brand Header -->
+    <div class="brand-header">
+        <div class="brand-title-group">
+            <h1>087 IMUS 1</h1>
+            <h1>Customer Suggestions</h1>            
+            <p>7-Eleven Store Branch • Submission Records</p>
+        </div>
+        <div class="stats-badge" id="recordCount">Loading records...</div>
+    </div>
+
+    <!-- Dashboard Card Container -->
+    <div class="container">
+        <div class="card-header">
+            <h2>Recorded Feedback</h2>
+            <div class="controls-group">
+                <!-- Date Filter Search Box -->
+                <input type="date" id="dateFilter" class="date-filter" title="Filter by Visit Date" onchange="filterRecords()">
+                <button class="btn-clear" onclick="clearDateFilter()" title="Clear Filter">Show All</button>
+                <button class="btn-refresh" onclick="fetchRecords()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.63-5.05"/></svg>
+                    Refresh Data
+                </button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Submit Date</th>
+                        <th>Full Name</th>
+                        <th>Suggestion / Feedback</th>
+                        <th>Visit Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="recordsTableBody">
+                    <!-- Rows dynamically injected -->
+                </tbody>
+            </table>
+            <div id="loadingStatus">Fetching recorded feedback from Google Sheet...</div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toastMessage" class="toast"></div>
+
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycby-4-ds8_6Wb27ED6oQtD97ITtVa8cq3MA3Y1t6ckgbFBqMD1_tZvd1WmyB3INXq2Xvcg/exec';
+
+    const tableBody = document.getElementById('recordsTableBody');
+    const loadingStatus = document.getElementById('loadingStatus');
+    const toastMessage = document.getElementById('toastMessage');
+    const recordCountBadge = document.getElementById('recordCount');
+    const dateFilterInput = document.getElementById('dateFilter');
+
+    let allRecords = []; // Master dataset copy for filtering
+
+    function showToast(message, type = 'success') {
+        toastMessage.textContent = message;
+        toastMessage.className = 'toast ' + type + ' show';
+        setTimeout(() => {
+            toastMessage.className = 'toast';
+        }, 3000);
+    }
+
+    function fetchRecords() {
+        loadingStatus.style.display = 'block';
+        loadingStatus.textContent = 'Loading records...';
+        tableBody.innerHTML = '';
+        recordCountBadge.textContent = 'Updating...';
+
+        fetch(scriptURL, { method: 'GET', redirect: 'follow' })
+            .then(res => res.json())
+            .then(response => {
+                loadingStatus.style.display = 'none';
+                if (response.result === 'success') {
+                    allRecords = response.data;
+                    filterRecords();
+                } else {
+                    recordCountBadge.textContent = 'Error';
+                    showToast('Failed to load records.', 'error');
+                }
+            })
+            .catch(error => {
+                loadingStatus.style.display = 'block';
+                loadingStatus.textContent = 'Error connecting to database.';
+                recordCountBadge.textContent = 'Connection Error';
+                console.error('Error:', error);
+            });
+    }
+
+    // Helper to format date strings to "Month Day, Year" (e.g. June 6, 2026)
+    function formatNiceDate(dateString) {
+        if (!dateString) return '';
+        const parts = dateString.split('T')[0].split('-');
+        if (parts.length !== 3) return dateString;
+        
+        const year = parseInt(parts[0], 10);
+        const monthIndex = parseInt(parts[1], 10) - 1;
+        const day = parseInt(parts[2], 10);
+
+        const dateObj = new Date(year, monthIndex, day);
+        if (isNaN(dateObj)) return dateString;
+
+        return dateObj.toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric'
+        });
+    }
+
+    // Helper to format timestamp into full month-name format with time (e.g. June 6, 2026, 2:30 PM)
+    function formatNiceTimestamp(timestampString) {
+        if (!timestampString) return '';
+        const dateObj = new Date(timestampString);
+        if (isNaN(dateObj)) return timestampString; // Fallback if format is unrecognized
+
+        return dateObj.toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+        });
+    }
+
+    function filterRecords() {
+        const selectedDate = dateFilterInput.value;
+        let filteredData = allRecords;
+
+        if (selectedDate) {
+            filteredData = allRecords.filter(row => {
+                if (!row.visitDate) return false;
+                const rowDateOnly = row.visitDate.split('T')[0];
+                return rowDateOnly === selectedDate;
+            });
+        }
+
+        recordCountBadge.textContent = `${filteredData.length} Total Entries`;
+
+        if (filteredData.length === 0) {
+            loadingStatus.style.display = 'block';
+            loadingStatus.textContent = selectedDate ? `No feedback found for visit date: ${formatNiceDate(selectedDate)}` : 'No recorded feedback found.';
+            tableBody.innerHTML = '';
+            return;
+        }
+
+        loadingStatus.style.display = 'none';
+        renderTable(filteredData);
+    }
+
+    function clearDateFilter() {
+        dateFilterInput.value = '';
+        filterRecords();
+    }
+
+    function renderTable(records) {
+        tableBody.innerHTML = '';
+        records.forEach(row => {
+            const tr = document.createElement('tr');
+            
+            // Format Submit Date and Visit Date into clean month name formats
+            const niceTimestamp = formatNiceTimestamp(row.timestamp);
+            const niceVisitDate = formatNiceDate(row.visitDate);
+
+            tr.innerHTML = `
+                <td>${niceTimestamp}</td>
+                <td><span class="name-tag">${row.fullName || 'ANONYMOUS'}</span></td>
+                <td><div class="feedback-text">${row.feedback || ''}</div></td>
+                <td>${niceVisitDate}</td>
+                <td>
+                    <button class="btn-delete" onclick="deleteRecord(${row.rowIndex}, this)">Delete</button>
+                </td>
+            `;
+            tableBody.appendChild(tr);
+        });
+    }
+
+    function deleteRecord(rowIndex, btnElement) {
+        if (!confirm('Are you sure you want to delete this record?')) return;
+
+        btnElement.disabled = true;
+        btnElement.textContent = 'Deleting...';
+
+        const params = new URLSearchParams();
+        params.append('action', 'delete');
+        params.append('rowIndex', rowIndex);
+
+        fetch(scriptURL, {
+            method: 'POST',
+            mode: 'cors',
+            redirect: 'follow',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: params
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.result === 'success') {
+                showToast('Record deleted successfully!', 'success');
+                fetchRecords();
+            } else {
+                showToast('Failed to delete record.', 'error');
+                btnElement.disabled = false;
+                btnElement.textContent = 'Delete';
+            }
+        })
+        .catch(err => {
+            showToast('Error deleting record.', 'error');
+            btnElement.disabled = false;
+            btnElement.textContent = 'Delete';
+            console.error('Error:', err);
+        });
+    }
+
+    window.addEventListener('DOMContentLoaded', fetchRecords);
+</script>
+
+</body>
+</html>
