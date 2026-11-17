@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>087 IMUS 1 · Customer Suggestions</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f4f5f4;
+            --surface: #ffffff;
+            --ink: #1b1f1d;
+            --muted: #636b67;
+            --line: #dcdfdd;
+            --hover: #f8f9f8;
+            --accent: #0b6b4a;
+            --accent-hover: #095a3e;
+            --accent-ink: #ffffff;
+            --danger: #b3261e;
+            --danger-bg: #fbeae9;
+            --focus: rgba(11, 107, 74, 0.25);
+            --radius: 10px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #121513;
+                --surface: #1b1f1d;
+                --ink: #eceeed;
+                --muted: #9aa29e;
+                --line: #2e3431;
+                --hover: #212623;
+                --accent: #3fb38a;
+                --accent-hover: #55c69c;
+                --accent-ink: #08140f;
+                --danger: #f2b8b5;
+                --danger-bg: #3a1f1e;
+                --focus: rgba(63, 179, 138, 0.3);
+            }
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        html { -webkit-text-size-adjust: 100%; }
+
+        body {
+            margin: 0;
+            padding: 32px 16px 48px;
+            background: var(--bg);
+            color: var(--ink);
+            font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            font-size: 15px;
+            line-height: 1.55;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .wrapper {
+            width: 100%;
+            max-width: 1050px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .page-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .brand {
+            margin: 0 0 4px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--accent);
+            letter-spacing: 0.01em;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+            line-height: 1.25;
+            letter-spacing: -0.015em;
+        }
+
+        .count {
+            flex-shrink: 0;
+            padding: 6px 12px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: var(--surface);
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* Card */
+        .card {
+            position: relative;
+            overflow: hidden;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(
+                to right,
+                #f08a24 0 33.333%,
+                #0a8040 33.333% 66.666%,
+                #e8272a 66.666% 100%
+            );
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            padding: 29px 24px 20px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        input[type="date"],
+        .btn {
+            height: 42px;
+            border-radius: var(--radius);
+            font: inherit;
+            font-size: 14px;
+        }
+
+        input[type="date"] {
+            padding: 0 12px;
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--line);
+            color-scheme: light dark;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        input[type="date"]:hover { border-color: var(--muted); }
+
+        input[type="date"]:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--focus);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0 16px;
+            border: 1px solid transparent;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+        }
+
+        .btn:focus-visible,
+        .btn-delete:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 3px var(--focus);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--accent-ink);
+        }
+
+        .btn-primary:hover { background: var(--accent-hover); }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border-color: var(--line);
+        }
+
+        .btn-secondary:hover { border-color: var(--muted); }
+
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        /* Table */
+        .table-wrap {
+            width: 100%;
+            max-height: 620px;
+            overflow: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 760px;
+            border-collapse: separate;
+            border-spacing: 0;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            padding: 12px 24px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--line);
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--line);
+            vertical-align: top;
+        }
+
+        tbody tr:last-child td { border-bottom: 0; }
+        tbody tr:hover td { background: var(--hover); }
+
+        .nowrap { white-space: nowrap; color: var(--muted); }
+
+        .name { font-weight: 500; }
+        .name.anon { color: var(--muted); font-weight: 400; }
+
+        .feedback {
+            max-width: 360px;
+            min-width: 200px;
+            overflow-wrap: anywhere;
+            white-space: pre-wrap;
+        }
+
+        .btn-delete {
+            padding: 7px 12px;
+            background: transparent;
+            color: var(--muted);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            font: inherit;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.15s, background 0.15s, border-color 0.15s;
+        }
+
+        .btn-delete:hover {
+            color: var(--danger);
+            background: var(--danger-bg);
+            border-color: transparent;
+        }
+
+        .btn-delete:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        #loadingStatus {
+            padding: 40px 20px;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 28px;
+            max-width: calc(100% - 32px);
+            padding: 12px 18px;
+            background: var(--ink);
+            color: var(--bg);
+            border-radius: var(--radius);
+            font-size: 14px;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transform: translate(-50%, 8px);
+            transition: opacity 0.25s, transform 0.25s;
+            z-index: 100;
+        }
+
+        .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+        .toast.error { background: #b3261e; color: #ffffff; }
+
+        @media (prefers-color-scheme: dark) {
+            .toast.error { background: #f2b8b5; color: #370b08; }
+        }
+
+        @media (max-width: 640px) {
+            body { padding: 24px 12px 40px; }
+            .page-header { flex-direction: column; align-items: flex-start; }
+            .card-header { padding: 27px 16px 16px; }
+            .controls { width: 100%; }
+            input[type="date"] { flex: 1 1 100%; }
+            .btn { flex: 1; }
+
+            /* Compact rows instead of a wide table: no sideways scrolling */
+            .table-wrap { max-height: none; overflow: visible; }
+            table, tbody { display: block; min-width: 0; }
+            thead { display: none; }
+
+            tbody tr {
+                display: grid;
+                grid-template-columns: 1fr auto;
+                column-gap: 12px;
+                padding: 14px 16px;
+                border-bottom: 1px solid var(--line);
+            }
+
+            tbody tr:last-child { border-bottom: 0; }
+
+            td {
+                display: block;
+                padding: 0;
+                border: 0;
+                font-size: 13px;
+                white-space: normal;
+            }
+
+            tbody tr:hover td { background: none; }
+
+            td:nth-child(2) { grid-column: 1; grid-row: 1; align-self: center; }
+            td:nth-child(5) { grid-column: 2; grid-row: 1; justify-self: end; }
+            td:nth-child(3) { grid-column: 1 / -1; grid-row: 2; margin: 6px 0 10px; }
+            td:nth-child(4) { grid-column: 1 / -1; grid-row: 3; font-size: 12px; }
+            td:nth-child(1) { grid-column: 1 / -1; grid-row: 4; font-size: 12px; }
+
+            td:nth-child(4)::before { content: "Visited "; }
+            td:nth-child(1)::before { content: "Submitted "; }
+
+            .feedback { min-width: 0; max-width: none; }
+            .btn-delete { padding: 5px 10px; font-size: 12px; }
+            #loadingStatus { padding: 32px 16px; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <header class="page-header">
+        <div>
+            <p class="brand">087 IMUS 1</p>
+            <h1>Customer suggestions</h1>
+        </div>
+        <div class="count" id="recordCount">Loading…</div>
+    </header>
+
+    <main class="card">
+        <div class="card-header">
+            <h2>Recorded feedback</h2>
+            <div class="controls">
+                <input type="date" id="dateFilter" aria-label="Filter by visit date" onchange="filterRecords()">
+                <button class="btn btn-secondary" type="button" onclick="clearDateFilter()">Show all</button>
+                <button class="btn btn-primary" type="button" onclick="fetchRecords()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.63-5.05"/></svg>
+                    Refresh
+                </button>
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Submitted</th>
+                        <th>Name</th>
+                        <th>Feedback</th>
+                        <th>Visit date</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="recordsTableBody"></tbody>
+            </table>
+            <div id="loadingStatus">Loading feedback…</div>
+        </div>
+    </main>
+</div>
+
+<div id="toastMessage" class="toast" role="status" aria-live="polite"></div>
+
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycby-4-ds8_6Wb27ED6oQtD97ITtVa8cq3MA3Y1t6ckgbFBqMD1_tZvd1WmyB3INXq2Xvcg/exec';
+
+    const tableBody = document.getElementById('recordsTableBody');
+    const loadingStatus = document.getElementById('loadingStatus');
+    const toastMessage = document.getElementById('toastMessage');
+    const recordCountBadge = document.getElementById('recordCount');
+    const dateFilterInput = document.getElementById('dateFilter');
+
+    let allRecords = []; // Master dataset copy for filtering
+    let toastTimer;
+
+    function showToast(message, type = 'success') {
+        clearTimeout(toastTimer);
+        toastMessage.textContent = message;
+        toastMessage.className = 'toast ' + type + ' show';
+        toastTimer = setTimeout(() => {
+            toastMessage.className = 'toast ' + type;
+        }, 3000);
+    }
+
+    // Escape user-submitted text before inserting it as HTML
+    function escapeHTML(value) {
+        return String(value ?? '').replace(/[&<>"']/g, ch => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[ch]));
+    }
+
+    function fetchRecords() {
+        loadingStatus.style.display = 'block';
+        loadingStatus.textContent = 'Loading feedback…';
+        tableBody.innerHTML = '';
+        recordCountBadge.textContent = 'Updating…';
+
+        fetch(scriptURL, { method: 'GET', redirect: 'follow' })
+            .then(res => res.json())
+            .then(response => {
+                loadingStatus.style.display = 'none';
+                if (response.result === 'success') {
+                    allRecords = response.data;
+                    filterRecords();
+                } else {
+                    recordCountBadge.textContent = 'Error';
+                    showToast('Failed to load records.', 'error');
+                }
+            })
+            .catch(error => {
+                loadingStatus.style.display = 'block';
+                loadingStatus.textContent = 'Error connecting to database.';
+                recordCountBadge.textContent = 'Connection error';
+                console.error('Error:', error);
+            });
+    }
+
+    // "Month Day, Year" (e.g. June 6, 2026)
+    function formatNiceDate(dateString) {
+        if (!dateString) return '';
+        const parts = dateString.split('T')[0].split('-');
+        if (parts.length !== 3) return dateString;
+
+        const year = parseInt(parts[0], 10);
+        const monthIndex = parseInt(parts[1], 10) - 1;
+        const day = parseInt(parts[2], 10);
+
+        const dateObj = new Date(year, monthIndex, day);
+        if (isNaN(dateObj)) return dateString;
+
+        return dateObj.toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric'
+        });
+    }
+
+    // Full date with time (e.g. June 6, 2026, 2:30 PM)
+    function formatNiceTimestamp(timestampString) {
+        if (!timestampString) return '';
+        const dateObj = new Date(timestampString);
+        if (isNaN(dateObj)) return timestampString;
+
+        return dateObj.toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+        });
+    }
+
+    function filterRecords() {
+        const selectedDate = dateFilterInput.value;
+        let filteredData = allRecords;
+
+        if (selectedDate) {
+            filteredData = allRecords.filter(row => {
+                if (!row.visitDate) return false;
+                return row.visitDate.split('T')[0] === selectedDate;
+            });
+        }
+
+        recordCountBadge.textContent = `${filteredData.length} ${filteredData.length === 1 ? 'entry' : 'entries'}`;
+
+        if (filteredData.length === 0) {
+            loadingStatus.style.display = 'block';
+            loadingStatus.textContent = selectedDate
+                ? `No feedback found for ${formatNiceDate(selectedDate)}.`
+                : 'No feedback recorded yet.';
+            tableBody.innerHTML = '';
+            return;
+        }
+
+        loadingStatus.style.display = 'none';
+        renderTable(filteredData);
+    }
+
+    function clearDateFilter() {
+        dateFilterInput.value = '';
+        filterRecords();
+    }
+
+    function renderTable(records) {
+        tableBody.innerHTML = '';
+        records.forEach(row => {
+            const tr = document.createElement('tr');
+            const name = (row.fullName || '').trim();
+
+            tr.innerHTML = `
+                <td class="nowrap">${escapeHTML(formatNiceTimestamp(row.timestamp))}</td>
+                <td><span class="name${name ? '' : ' anon'}">${name ? escapeHTML(name) : 'Anonymous'}</span></td>
+                <td><div class="feedback">${escapeHTML(row.feedback)}</div></td>
+                <td class="nowrap">${escapeHTML(formatNiceDate(row.visitDate))}</td>
+                <td><button class="btn-delete" type="button" onclick="deleteRecord(${Number(row.rowIndex)}, this)">Delete</button></td>
+            `;
+            tableBody.appendChild(tr);
+        });
+    }
+
+    function deleteRecord(rowIndex, btnElement) {
+        if (!confirm('Are you sure you want to delete this record?')) return;
+
+        btnElement.disabled = true;
+        btnElement.textContent = 'Deleting…';
+
+        const params = new URLSearchParams();
+        params.append('action', 'delete');
+        params.append('rowIndex', rowIndex);
+
+        fetch(scriptURL, {
+            method: 'POST',
+            mode: 'cors',
+            redirect: 'follow',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.result === 'success') {
+                showToast('Record deleted.', 'success');
+                fetchRecords();
+            } else {
+                showToast('Failed to delete record.', 'error');
+                btnElement.disabled = false;
+                btnElement.textContent = 'Delete';
+            }
+        })
+        .catch(err => {
+            showToast('Error deleting record.', 'error');
+            btnElement.disabled = false;
+            btnElement.textContent = 'Delete';
+            console.error('Error:', err);
+        });
+    }
+
+    window.addEventListener('DOMContentLoaded', fetchRecords);
+</script>
+
+</body>
+</html>
